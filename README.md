@@ -134,7 +134,7 @@ GitHub Actions 기반 CI/CD 파이프라인:
 
 ## 📞 연락처
 
-문의사항이 있으시면 [mnemion@naver.com](mailto:mnemion@naver.com)으로 연락주세요.
+문의사항이 있으시면 [game1761@naver.com](mailto:game1761@naver.com)으로 연락주세요.
 
 ## 📝 업데이트 기록
 
