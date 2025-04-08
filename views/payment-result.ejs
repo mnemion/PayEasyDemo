@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><%= title %></h1>
+      <p>결제 처리 결과</p>
+    </header>
+
+    <main>
+      <section class="result-section">
+        <% if (payment.status === 'succeeded') { %>
+          <div class="result-success">
+            <h2>결제 성공</h2>
+            <p>결제가 성공적으로 처리되었습니다.</p>
+            <div class="success-icon">✓</div>
+          </div>
+        <% } else if (payment.status === 'ready' || payment.status === 'processing') { %>
+          <div class="result-processing">
+            <h2>결제 처리 중</h2>
+            <p>결제가 아직 처리 중입니다. 잠시 후 다시 확인해주세요.</p>
+            <div class="processing-icon">⌛</div>
+          </div>
+        <% } else { %>
+          <div class="result-error">
+            <h2>결제 실패</h2>
+            <p>결제 처리 중 문제가 발생했습니다.</p>
+            <div class="error-icon">✗</div>
+          </div>
+        <% } %>
+
+        <div class="payment-details">
+          <h3>결제 정보</h3>
+          <table>
+            <tr>
+              <th>주문 ID</th>
+              <td><%= payment.id %></td>
+            </tr>
+            <tr>
+              <th>금액</th>
+              <td><%= payment.amount.toLocaleString() %> <%= payment.currency.toUpperCase() %></td>
+            </tr>
+            <tr>
+              <th>상태</th>
+              <td>
+                <span class="status-badge status-<%= payment.status %>">
+                  <%= payment.status %>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>상품명</th>
+              <td><%= payment.description || '없음' %></td>
+            </tr>
+            <tr>
+              <th>결제 수단</th>
+              <td><%= payment.payment_method || '미지정' %></td>
+            </tr>
+            <tr>
+              <th>이메일</th>
+              <td><%= payment.customer_email || '미지정' %></td>
+            </tr>
+            <tr>
+              <th>생성 시간</th>
+              <td><%= new Date(payment.created_at * 1000).toLocaleString() %></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="action-buttons">
+          <a href="/" class="button">홈으로 돌아가기</a>
+          
+          <% if (payment.status === 'succeeded' && payment.payment_key) { %>
+            <button id="cancel-payment" class="button button-danger" data-payment-key="<%= payment.payment_key %>">결제 취소</button>
+          <% } %>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const cancelButton = document.getElementById('cancel-payment');
+      
+      if (cancelButton) {
+        cancelButton.addEventListener('click', async function() {
+          if (!confirm('정말 이 결제를 취소하시겠습니까?')) {
+            return;
+          }
+          
+          this.disabled = true;
+          this.textContent = '취소 처리 중...';
+          
+          try {
+            const paymentKey = this.dataset.paymentKey;
+            
+            const response = await fetch('/payments/cancel', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                paymentKey: paymentKey,
+                reason: '사용자 요청에 의한 취소'
+              })
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || '결제 취소 중 오류가 발생했습니다.');
+            }
+            
+            const result = await response.json();
+            alert('결제가 성공적으로 취소되었습니다.');
+            window.location.href = '/';
+          } catch (error) {
+            console.error('결제 취소 오류:', error);
+            alert('결제 취소 중 오류가 발생했습니다: ' + error.message);
+            this.disabled = false;
+            this.textContent = '결제 취소';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

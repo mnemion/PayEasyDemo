@@ -1,0 +1,93 @@
+#!/usr/bin/env node
+
+/**
+ * 모듈 의존성
+ */
+const app = require('../app');
+const debug = require('debug')('pay-easy-demo:server');
+const http = require('http');
+const { initializeDatabase } = require('../models/Payment');
+
+/**
+ * 포트 정규화 - 숫자 문자열을 숫자로 변환
+ */
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val;
+  }
+
+  if (port >= 0) {
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * 환경 설정에서 포트를 가져와 Express에 저장
+ */
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * HTTP 서버 생성
+ */
+const server = http.createServer(app);
+
+/**
+ * 서버 시작 전 데이터베이스 초기화
+ */
+initializeDatabase()
+    .then(() => {
+      /**
+       * 지정된 포트에서 서버 리스닝
+       */
+      server.listen(port);
+      server.on('error', onError);
+      server.on('listening', onListening);
+    })
+    .catch(err => {
+      console.error('데이터베이스 초기화 오류:', err);
+      process.exit(1);
+    });
+
+/**
+ * HTTP 서버 "error" 이벤트 리스너
+ */
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string'
+      ? 'Pipe ' + port
+      : 'Port ' + port;
+
+  // 특정 리스닝 오류는 친숙한 메시지로 처리
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' 권한 상승이 필요합니다');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' 이미 사용 중입니다');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * HTTP 서버 "listening" 이벤트 리스너
+ */
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string'
+      ? 'pipe ' + addr
+      : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+  console.log(`서버가 http://localhost:${addr.port} 에서 실행 중입니다`);
+}

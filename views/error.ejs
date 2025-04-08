@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오류 발생</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>오류 발생</h1>
+    </header>
+
+    <main>
+        <section class="error-section">
+            <div class="error-details">
+                <h2><%= message %></h2>
+                <h3><%= error.status %></h3>
+                <% if (error.stack && process.env.NODE_ENV === 'development') { %>
+                    <pre><%= error.stack %></pre>
+                <% } %>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/" class="button">홈으로 돌아가기</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+    </footer>
+</div>
+</body>
+</html>

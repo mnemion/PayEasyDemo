@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>결제 성공</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>결제 성공</h1>
+        <p>결제가 성공적으로 처리되었습니다.</p>
+      </header>
+
+      <main>
+        <section class="result-section">
+          <div id="loading" class="result-processing">
+            <h2>결제 확인 중...</h2>
+            <p>잠시만 기다려주세요. 결제 정보를 확인하고 있습니다.</p>
+            <div class="processing-icon">⌛</div>
+          </div>
+
+          <div id="success-info" class="result-success hidden">
+            <h2>결제 확인 완료</h2>
+            <p>결제가 성공적으로 확인되었습니다.</p>
+            <div class="success-icon">✓</div>
+          </div>
+
+          <div id="error-info" class="result-error hidden">
+            <h2>결제 확인 오류</h2>
+            <p id="error-message">결제 확인 중 오류가 발생했습니다.</p>
+            <div class="error-icon">✗</div>
+          </div>
+
+          <div class="payment-details">
+            <h3>결제 정보</h3>
+            <table>
+              <tr>
+                <th>주문 ID</th>
+                <td id="orderId">-</td>
+              </tr>
+              <tr>
+                <th>결제 키</th>
+                <td id="paymentKey">-</td>
+              </tr>
+              <tr>
+                <th>금액</th>
+                <td id="amount">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="action-buttons">
+            <a href="/" class="button">홈으로 돌아가기</a>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+      </footer>
+    </div>
+
+    <script>
+      // URL 파라미터 파싱
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentKey = urlParams.get("paymentKey");
+      const orderId = urlParams.get("orderId");
+      const amount = urlParams.get("amount");
+
+      // DOM 요소
+      const loadingDiv = document.getElementById("loading");
+      const successDiv = document.getElementById("success-info");
+      const errorDiv = document.getElementById("error-info");
+      const errorMessageEl = document.getElementById("error-message");
+
+      // 결제 정보 표시
+      document.getElementById("paymentKey").textContent = paymentKey || '-';
+      document.getElementById("orderId").textContent = orderId || '-';
+      document.getElementById("amount").textContent = amount ? 
+        new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount) : 
+        '-';
+
+      // 결제 확인 함수
+      async function confirmPayment() {
+        if (!paymentKey || !orderId || !amount) {
+          showError("필수 결제 정보가 누락되었습니다.");
+          return;
+        }
+
+        try {
+          // 숫자로 변환
+          const parsedAmount = parseInt(amount, 10);
+          if (isNaN(parsedAmount)) {
+            showError("결제 금액이 유효하지 않습니다.");
+            return;
+          }
+
+          // 결제 확인 API 호출
+          const response = await fetch("/payments/confirm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              paymentKey,
+              orderId,
+              amount: parsedAmount
+            }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            showError(result.message || "결제 확인 중 오류가 발생했습니다.");
+            console.error("결제 확인 실패:", result);
+            return;
+          }
+
+          // 성공 처리
+          console.log("결제 확인 성공:", result);
+          showSuccess();
+
+          // 결제 결과 페이지로 리다이렉트 (선택적)
+          setTimeout(() => {
+            window.location.href = `/payments/${orderId}/result`;
+          }, 2000);
+        } catch (error) {
+          showError("결제 확인 중 오류가 발생했습니다: " + error.message);
+          console.error("결제 확인 오류:", error);
+        }
+      }
+
+      // 오류 표시 함수
+      function showError(message) {
+        loadingDiv.classList.add("hidden");
+        errorDiv.classList.remove("hidden");
+        errorMessageEl.textContent = message;
+      }
+
+      // 성공 표시 함수
+      function showSuccess() {
+        loadingDiv.classList.add("hidden");
+        successDiv.classList.remove("hidden");
+      }
+
+      // 페이지 로드 시 결제 확인 실행
+      window.addEventListener("DOMContentLoaded", confirmPayment);
+    </script>
+  </body>
+</html> 

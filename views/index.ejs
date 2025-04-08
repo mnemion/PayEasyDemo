@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><%= title %></h1>
+    <p>간단한 결제 API 연동 데모 애플리케이션</p>
+  </header>
+
+  <main>
+    <section class="payment-section">
+      <h2>상품 결제</h2>
+
+      <div class="product-selection">
+        <div class="product-card" data-product-id="1" data-product-price="10000" data-product-name="기본 상품">
+          <h3>기본 상품</h3>
+          <p class="product-price">10,000원</p>
+          <button class="select-product-btn">선택</button>
+        </div>
+
+        <div class="product-card" data-product-id="2" data-product-price="20000" data-product-name="프리미엄 상품">
+          <h3>프리미엄 상품</h3>
+          <p class="product-price">20,000원</p>
+          <button class="select-product-btn">선택</button>
+        </div>
+
+        <div class="product-card" data-product-id="3" data-product-price="50000" data-product-name="프로 상품">
+          <h3>프로 상품</h3>
+          <p class="product-price">50,000원</p>
+          <button class="select-product-btn">선택</button>
+        </div>
+      </div>
+
+      <div class="custom-payment">
+        <h3>또는 직접 금액 입력</h3>
+        <div class="input-group">
+          <input type="number" id="custom-amount" min="1000" step="1000" placeholder="금액 (원)">
+          <button id="custom-amount-btn">결제하기</button>
+        </div>
+      </div>
+
+      <div id="payment-form-container" class="hidden">
+        <h3>결제 정보 입력</h3>
+        <form id="payment-form">
+          <div class="form-group">
+            <label for="customer-name">이름</label>
+            <input type="text" id="customer-name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="customer-email">이메일</label>
+            <input type="email" id="customer-email" required>
+          </div>
+
+          <!-- 할인 쿠폰 -->
+          <div class="form-group coupon-container">
+            <div class="coupon-box">
+              <input type="checkbox" id="coupon-box" />
+              <label for="coupon-box">
+                <div class="coupon-label">
+                  <span class="coupon-icon">🎟️</span>
+                  <span class="coupon-text">5,000원 할인 쿠폰</span>
+                </div>
+                <div class="coupon-description">체크하면 쿠폰이 자동으로 적용됩니다</div>
+              </label>
+            </div>
+            <div id="discount-info" class="discount-info hidden">
+              <div class="discount-details">
+                <span>원래 가격: <span id="original-price">0</span>원</span>
+                <span>할인 금액: <span class="discount-amount">5,000</span>원</span>
+                <span>최종 가격: <span id="final-price">0</span>원</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>결제 수단</label>
+            <!-- 결제 위젯이 들어갈 자리 -->
+            <div id="payment-method"></div>
+          </div>
+
+          <!-- 이용약관 위젯 -->
+          <div class="form-group">
+            <div id="agreement"></div>
+          </div>
+
+          <div class="payment-summary">
+            <h4>결제 요약</h4>
+            <p>상품: <span id="product-name">선택된 상품</span></p>
+            <p>금액: <span id="payment-amount">0</span>원</p>
+          </div>
+
+          <div id="error-message" class="error-message" role="alert"></div>
+
+          <button type="button" id="payment-button" class="button" disabled>
+            <span id="button-text">결제하기</span>
+            <div id="spinner" class="spinner hidden"></div>
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+  </footer>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', main);
+
+  async function main() {
+    // 상품 선택 버튼 이벤트 리스너
+    document.querySelectorAll('.select-product-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const productCard = this.closest('.product-card');
+        const productPrice = parseInt(productCard.dataset.productPrice);
+        const productName = productCard.dataset.productName;
+
+        // 결제 폼 업데이트 및 표시
+        updatePaymentForm(productName, productPrice);
+      });
+    });
+
+    // 커스텀 금액 버튼 이벤트 리스너
+    document.getElementById('custom-amount-btn').addEventListener('click', function() {
+      const amountInput = document.getElementById('custom-amount');
+      const amount = parseInt(amountInput.value);
+
+      if (isNaN(amount) || amount < 1000) {
+        alert('1,000원 이상의 유효한 금액을 입력해주세요.');
+        return;
+      }
+
+      // 결제 폼 업데이트 및 표시
+      updatePaymentForm('커스텀 결제', amount);
+    });
+  }
+
+  // 결제 폼 업데이트 및 표시
+  async function updatePaymentForm(productName, amount) {
+    // 화면 업데이트
+    document.getElementById('product-name').textContent = productName;
+    document.getElementById('payment-amount').textContent = amount.toLocaleString();
+    document.getElementById('payment-form-container').classList.remove('hidden');
+
+    const clientKey = '<%= tossPaymentsClientKey %>';
+    const customerName = document.getElementById('customer-name');
+    const customerEmail = document.getElementById('customer-email');
+    const errorMessage = document.getElementById('error-message');
+    const button = document.getElementById('payment-button');
+    const coupon = document.getElementById('coupon-box');
+    
+    try {
+      errorMessage.textContent = '';
+
+      // 결제위젯 초기화 
+      const tossPayments = TossPayments(clientKey);
+      
+      // 고유한 고객 키 생성 (비회원)
+      const customerKey = `ANON_${new Date().getTime()}`;
+      const widgets = tossPayments.widgets({ customerKey });
+      
+      // 결제 금액 설정
+      await widgets.setAmount({
+        currency: 'KRW',
+        value: amount
+      });
+
+      // 결제 UI와 이용약관 UI 렌더링
+      await Promise.all([
+        widgets.renderPaymentMethods({
+          selector: '#payment-method',
+          variantKey: 'DEFAULT'
+        }),
+        widgets.renderAgreement({
+          selector: '#agreement',
+          variantKey: 'AGREEMENT'
+        })
+      ]);
+
+      // 버튼 활성화
+      button.disabled = false;
+
+      // 쿠폰 적용 이벤트 리스너
+      coupon.addEventListener('change', async function() {
+        try {
+          const discountInfo = document.getElementById('discount-info');
+          const originalPrice = document.getElementById('original-price');
+          const finalPrice = document.getElementById('final-price');
+          
+          // 원래 가격 표시
+          originalPrice.textContent = amount.toLocaleString();
+          
+          if (coupon.checked) {
+            const discountedAmount = amount - 5000 > 0 ? amount - 5000 : 0;
+            
+            // 할인 후 금액 표시
+            finalPrice.textContent = discountedAmount.toLocaleString();
+            
+            // 할인 정보 표시
+            discountInfo.classList.remove('hidden');
+            
+            // 위젯 금액 업데이트
+            await widgets.setAmount({
+              currency: 'KRW',
+              value: discountedAmount
+            });
+            
+            // 금액 요약 정보 업데이트
+            document.getElementById('payment-amount').textContent = `${discountedAmount.toLocaleString()} (5,000원 할인 적용)`;
+          } else {
+            // 할인 정보 숨기기
+            discountInfo.classList.add('hidden');
+            
+            // 위젯 금액 업데이트
+            await widgets.setAmount({
+              currency: 'KRW',
+              value: amount
+            });
+            
+            // 금액 요약 정보 업데이트
+            document.getElementById('payment-amount').textContent = amount.toLocaleString();
+          }
+          errorMessage.textContent = '';
+        } catch (error) {
+          errorMessage.textContent = `쿠폰 적용 중 오류가 발생했습니다: ${error.message}`;
+        }
+      });
+
+      // 결제하기 버튼 클릭 이벤트
+      button.addEventListener('click', async function() {
+        if (!customerName.value || !customerEmail.value) {
+          errorMessage.textContent = '이름과 이메일을 입력해주세요.';
+          return;
+        }
+
+        button.disabled = true;
+        button.querySelector('#button-text').textContent = '결제 처리 중...';
+        button.querySelector('#spinner').classList.remove('hidden');
+        
+        try {
+          // 고유한 주문번호 생성
+          const orderId = `order_${new Date().getTime()}_${Math.random().toString(36).substring(2, 8)}`;
+          
+          // 쿠폰 적용 금액 계산
+          const finalAmount = coupon.checked ? (amount - 5000 > 0 ? amount - 5000 : 0) : amount;
+          
+          // 결제 요청
+          await widgets.requestPayment({
+            orderId: orderId,
+            orderName: productName,
+            successUrl: `${window.location.origin}/payments/success`,
+            failUrl: `${window.location.origin}/payments/fail`,
+            customerEmail: customerEmail.value,
+            customerName: customerName.value
+          });
+        } catch (error) {
+          errorMessage.textContent = `결제 요청 중 오류가 발생했습니다: ${error.message}`;
+          button.disabled = false;
+          button.querySelector('#button-text').textContent = '결제하기';
+          button.querySelector('#spinner').classList.add('hidden');
+        }
+      });
+    } catch (error) {
+      errorMessage.textContent = `결제 위젯 초기화 중 오류가 발생했습니다: ${error.message}`;
+    }
+  }
+</script>
+</body>
+</html>

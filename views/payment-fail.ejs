@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><%= title %></h1>
+        <p>결제 처리 결과</p>
+    </header>
+
+    <main>
+        <section class="result-section">
+            <div class="result-error">
+                <h2>결제 실패</h2>
+                <p>결제 처리 중 문제가 발생했습니다.</p>
+                <div class="error-icon">✗</div>
+            </div>
+
+            <div class="payment-details">
+                <h3>오류 정보</h3>
+                <table>
+                    <tr>
+                        <th>오류 코드</th>
+                        <td><%= code %></td>
+                    </tr>
+                    <tr>
+                        <th>오류 메시지</th>
+                        <td><%= message %></td>
+                    </tr>
+                    <% if (orderId) { %>
+                        <tr>
+                            <th>주문 ID</th>
+                            <td><%= orderId %></td>
+                        </tr>
+                    <% } %>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/" class="button">홈으로 돌아가기</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+    </footer>
+</div>
+</body>
+</html>

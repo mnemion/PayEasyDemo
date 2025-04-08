@@ -1,0 +1,610 @@
+/* 기본 스타일 */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --error-color: #e74c3c;
+  --warning-color: #f39c12;
+  --dark-color: #2c3e50;
+  --light-color: #ecf0f1;
+  --gray-color: #95a5a6;
+  --border-radius: 5px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: var(--light-color);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 헤더 */
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+header h1 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+/* 메인 컨텐츠 */
+main {
+  margin-bottom: 40px;
+}
+
+section {
+  background-color: white;
+  padding: 30px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 20px;
+}
+
+section h2 {
+  color: var(--dark-color);
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+section h3 {
+  margin: 20px 0 15px;
+  color: var(--dark-color);
+}
+
+/* 결제 선택 섹션 */
+.product-selection {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.product-card {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-card h3 {
+  margin-top: 0;
+}
+
+.product-price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 15px 0;
+}
+
+.select-product-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.select-product-btn:hover {
+  background-color: #2980b9;
+}
+
+/* 커스텀 결제 */
+.custom-payment {
+  margin: 30px 0;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+}
+
+#custom-amount-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+/* 결제 폼 */
+#payment-form-container {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px dashed #ddd;
+}
+
+#payment-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+}
+
+#card-element {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  background: white;
+}
+
+.error-message {
+  color: var(--error-color);
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.payment-summary {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: var(--border-radius);
+  margin: 20px 0;
+}
+
+#submit-button {
+  display: block;
+  width: 100%;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  font-size: 1.1em;
+  cursor: pointer;
+  position: relative;
+}
+
+#submit-button:hover {
+  background-color: #27ae60;
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 결과 페이지 */
+.result-success, .result-error, .result-processing {
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: var(--border-radius);
+}
+
+.result-success {
+  background-color: rgba(46, 204, 113, 0.1);
+  border: 1px solid var(--secondary-color);
+}
+
+.result-processing {
+  background-color: rgba(243, 156, 18, 0.1);
+  border: 1px solid var(--warning-color);
+}
+
+.result-error {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--error-color);
+}
+
+.success-icon, .error-icon, .processing-icon {
+  font-size: 3em;
+  margin: 20px 0;
+}
+
+.success-icon {
+  color: var(--secondary-color);
+}
+
+.processing-icon {
+  color: var(--warning-color);
+}
+
+.error-icon {
+  color: var(--error-color);
+}
+
+.payment-details {
+  margin: 30px 0;
+}
+
+.payment-details table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payment-details th,
+.payment-details td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.payment-details th {
+  width: 30%;
+  color: var(--gray-color);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.status-succeeded {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.status-processing {
+  background-color: rgba(243, 156, 18, 0.1);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+.status-requires_payment_method,
+.status-requires_action,
+.status-requires_confirmation {
+  background-color: rgba(52, 152, 219, 0.1);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.status-canceled {
+  background-color: rgba(149, 165, 166, 0.1);
+  color: var(--gray-color);
+  border: 1px solid var(--gray-color);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: none;
+  font-size: 1em;
+}
+
+.button:hover {
+  background-color: #2980b9;
+}
+
+.button-danger {
+  background-color: var(--error-color);
+}
+
+.button-danger:hover {
+  background-color: #c0392b;
+}
+
+/* 에러 페이지 */
+.error-section {
+  text-align: center;
+}
+
+.error-details {
+  margin-bottom: 30px;
+}
+
+.error-details pre {
+  text-align: left;
+  background-color: #f8f8f8;
+  padding: 15px;
+  overflow-x: auto;
+  margin-top: 20px;
+  border-radius: var(--border-radius);
+}
+
+/* 푸터 */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--gray-color);
+}
+
+/* 유틸리티 클래스 */
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .product-selection {
+    flex-direction: column;
+  }
+
+  .input-group {
+    flex-direction: column;
+  }
+
+  .payment-details th {
+    width: 40%;
+  }
+}
+
+/* Toss Payments 관련 상태 뱃지 스타일 */
+.status-ready {
+  background-color: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+  border: 1px solid #3498db;
+}
+
+.status-failed {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+}
+
+.status-canceled {
+  background-color: rgba(149, 165, 166, 0.1);
+  color: #95a5a6;
+  border: 1px solid #95a5a6;
+}
+
+/* 결제 위젯 컨테이너 스타일 */
+#payment-method-container {
+  width: 100%;
+  min-height: 100px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  background-color: white;
+  margin-top: 5px;
+}
+
+/* 관리자 페이지 스타일 */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+  text-align: center;
+}
+
+.dashboard-card h3 {
+  color: var(--gray-color);
+  margin-bottom: 10px;
+}
+
+.dashboard-card .number {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.dashboard-card.success .number {
+  color: var(--secondary-color);
+}
+
+.dashboard-card.failed .number {
+  color: var(--error-color);
+}
+
+.dashboard-card.canceled .number {
+  color: var(--warning-color);
+}
+
+/* 결제 방법 선택 효과 */
+.payment-method-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.payment-method-option {
+  flex: 1;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: var(--border-radius);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-method-option:hover {
+  border-color: var(--primary-color);
+}
+
+.payment-method-option.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.payment-method-option img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+
+/* 반응형 디자인 개선 */
+@media (max-width: 576px) {
+  .payment-details th {
+    width: 40%;
+  }
+  
+  .dashboard-card {
+    padding: 15px;
+  }
+  
+  .payment-method-option {
+    padding: 10px;
+  }
+  
+  .payment-method-option img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* 쿠폰 스타일 */
+.coupon-container {
+  margin: 25px 0;
+}
+
+.coupon-box {
+  border: 2px dashed #f39c12;
+  border-radius: 8px;
+  padding: 5px;
+  position: relative;
+  background-color: #fff9e6;
+  transition: all 0.3s ease;
+}
+
+.coupon-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.coupon-box input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.coupon-box label {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 12px 15px;
+  width: 100%;
+}
+
+.coupon-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coupon-icon {
+  font-size: 1.5em;
+}
+
+.coupon-text {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #e67e22;
+}
+
+.coupon-description {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #7f8c8d;
+}
+
+.coupon-box input[type="checkbox"]:checked + label {
+  background-color: #ffedd9;
+}
+
+.coupon-box input[type="checkbox"]:checked + label .coupon-text {
+  color: #d35400;
+}
+
+.discount-info {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #e8f7f3;
+  border-radius: 6px;
+  border-left: 4px solid #2ecc71;
+}
+
+.discount-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.discount-amount {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.discount-info.hidden {
+  display: none;
+}

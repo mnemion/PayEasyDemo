@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제 관리자 페이지</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <style>
+    .admin-panel {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    .payment-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .payment-table th, .payment-table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .payment-table th {
+      background-color: #f2f2f2;
+    }
+
+    .payment-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .payment-table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .payment-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .search-section {
+      margin-bottom: 20px;
+    }
+
+    .search-section input {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .search-section button {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination a {
+      color: black;
+      padding: 8px 16px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      margin: 0 4px;
+    }
+
+    .pagination a.active {
+      background-color: #4CAF50;
+      color: white;
+      border: 1px solid #4CAF50;
+    }
+
+    .pagination a:hover:not(.active) {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>결제 관리자 페이지</h1>
+      <p>모든 결제 내역을 관리합니다</p>
+    </header>
+
+    <main>
+      <section class="admin-panel">
+        <div class="search-section">
+          <h2>결제 내역 검색</h2>
+          <form id="search-form">
+            <div class="input-group">
+              <input type="text" id="search-term" placeholder="주문 ID, 이메일, 결제 키 검색">
+              <select id="status-filter">
+                <option value="">모든 상태</option>
+                <option value="ready">준비</option>
+                <option value="succeeded">성공</option>
+                <option value="failed">실패</option>
+                <option value="canceled">취소</option>
+              </select>
+              <button type="submit">검색</button>
+            </div>
+          </form>
+        </div>
+
+        <h2>결제 내역</h2>
+        <div id="payments-table-container">
+          <table class="payment-table">
+            <thead>
+              <tr>
+                <th>주문 ID</th>
+                <th>금액</th>
+                <th>상품명</th>
+                <th>상태</th>
+                <th>결제 수단</th>
+                <th>이메일</th>
+                <th>결제 키</th>
+                <th>생성 시간</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody id="payments-list">
+              <!-- 결제 내역이 여기에 동적으로 로드됩니다 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination">
+          <!-- 페이지네이션 컨트롤이 여기에 동적으로 로드됩니다 -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let payments = [];
+      let currentPage = 1;
+      const itemsPerPage = 10;
+      let filteredPayments = [];
+      
+      // 결제 내역 로드
+      async function loadPayments() {
+        try {
+          const response = await fetch('/payments/history');
+          if (!response.ok) {
+            throw new Error('결제 내역을 불러오는 중 오류가 발생했습니다.');
+          }
+          
+          payments = await response.json();
+          filteredPayments = [...payments];
+          
+          updatePagination();
+          displayPayments();
+        } catch (error) {
+          console.error('결제 내역 로드 오류:', error);
+          alert('결제 내역을 불러오는 중 오류가 발생했습니다: ' + error.message);
+        }
+      }
+      
+      // 결제 내역 화면에 표시
+      function displayPayments() {
+        const paymentsListElement = document.getElementById('payments-list');
+        paymentsListElement.innerHTML = '';
+        
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredPayments.length);
+        
+        if (filteredPayments.length === 0) {
+          paymentsListElement.innerHTML = '<tr><td colspan="9" style="text-align: center;">결제 내역이 없습니다</td></tr>';
+          return;
+        }
+        
+        for (let i = startIndex; i < endIndex; i++) {
+          const payment = filteredPayments[i];
+          const row = document.createElement('tr');
+          
+          row.innerHTML = `
+            <td>${payment.id}</td>
+            <td>${payment.amount.toLocaleString()} ${payment.currency.toUpperCase()}</td>
+            <td>${payment.description || '-'}</td>
+            <td>
+              <span class="status-badge status-${payment.status}">
+                ${payment.status}
+              </span>
+            </td>
+            <td>${payment.payment_method || '-'}</td>
+            <td>${payment.customer_email || '-'}</td>
+            <td>${payment.payment_key || '-'}</td>
+            <td>${new Date(payment.created_at * 1000).toLocaleString()}</td>
+            <td class="payment-actions">
+              <a href="/payments/${payment.id}/result" class="button" target="_blank">보기</a>
+              ${payment.status === 'succeeded' && payment.payment_key ? 
+                `<button class="button button-danger cancel-payment-btn" data-payment-key="${payment.payment_key}">취소</button>` : 
+                ''}
+            </td>
+          `;
+          
+          paymentsListElement.appendChild(row);
+        }
+        
+        // 결제 취소 버튼 이벤트 리스너 추가
+        document.querySelectorAll('.cancel-payment-btn').forEach(button => {
+          button.addEventListener('click', handleCancelPayment);
+        });
+      }
+      
+      // 페이지네이션 업데이트
+      function updatePagination() {
+        const paginationElement = document.getElementById('pagination');
+        paginationElement.innerHTML = '';
+        
+        const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+        
+        if (totalPages <= 1) {
+          return;
+        }
+        
+        // 이전 페이지 링크
+        if (currentPage > 1) {
+          const prevLink = document.createElement('a');
+          prevLink.href = '#';
+          prevLink.textContent = '이전';
+          prevLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage--;
+            displayPayments();
+            updatePagination();
+          });
+          paginationElement.appendChild(prevLink);
+        }
+        
+        // 페이지 번호 링크
+        for (let i = 1; i <= totalPages; i++) {
+          const pageLink = document.createElement('a');
+          pageLink.href = '#';
+          pageLink.textContent = i;
+          if (i === currentPage) {
+            pageLink.classList.add('active');
+          }
+          
+          pageLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = i;
+            displayPayments();
+            updatePagination();
+          });
+          
+          paginationElement.appendChild(pageLink);
+        }
+        
+        // 다음 페이지 링크
+        if (currentPage < totalPages) {
+          const nextLink = document.createElement('a');
+          nextLink.href = '#';
+          nextLink.textContent = '다음';
+          nextLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage++;
+            displayPayments();
+            updatePagination();
+          });
+          paginationElement.appendChild(nextLink);
+        }
+      }
+      
+      // 검색 및 필터링 기능
+      document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const searchTerm = document.getElementById('search-term').value.toLowerCase();
+        const statusFilter = document.getElementById('status-filter').value;
+        
+        filteredPayments = payments.filter(payment => {
+          const matchesSearch = !searchTerm || 
+            payment.id.toLowerCase().includes(searchTerm) || 
+            (payment.customer_email && payment.customer_email.toLowerCase().includes(searchTerm)) ||
+            (payment.payment_key && payment.payment_key.toLowerCase().includes(searchTerm));
+            
+          const matchesStatus = !statusFilter || payment.status === statusFilter;
+          
+          return matchesSearch && matchesStatus;
+        });
+        
+        currentPage = 1;
+        updatePagination();
+        displayPayments();
+      });
+      
+      // 결제 취소 처리
+      async function handleCancelPayment() {
+        if (!confirm('정말 이 결제를 취소하시겠습니까?')) {
+          return;
+        }
+        
+        const paymentKey = this.dataset.paymentKey;
+        
+        try {
+          const response = await fetch('/payments/cancel', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              paymentKey: paymentKey,
+              reason: '관리자에 의한 취소'
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '결제 취소 중 오류가 발생했습니다.');
+          }
+          
+          alert('결제가 성공적으로 취소되었습니다.');
+          
+          // 결제 내역 리로드
+          loadPayments();
+        } catch (error) {
+          console.error('결제 취소 오류:', error);
+          alert('결제 취소 중 오류가 발생했습니다: ' + error.message);
+        }
+      }
+      
+      // 초기 데이터 로드
+      loadPayments();
+    });
+  </script>
+</body>
+</html>

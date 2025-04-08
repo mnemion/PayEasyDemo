@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>결제 실패</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>결제 실패</h1>
+        <p>결제 처리 중 문제가 발생했습니다.</p>
+      </header>
+
+      <main>
+        <section class="result-section">
+          <div class="result-error">
+            <h2>결제 실패</h2>
+            <p id="error-message">결제가 실패했습니다.</p>
+            <div class="error-icon">✗</div>
+          </div>
+
+          <div class="payment-details">
+            <h3>오류 정보</h3>
+            <table>
+              <tr>
+                <th>오류 코드</th>
+                <td id="code">-</td>
+              </tr>
+              <tr>
+                <th>오류 메시지</th>
+                <td id="message">-</td>
+              </tr>
+              <tr>
+                <th>주문번호</th>
+                <td id="orderId">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="action-buttons">
+            <a href="/" class="button">홈으로 돌아가기</a>
+            <button id="retry-button" class="button">다시 결제하기</button>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 PayEasyDemo. 모든 결제는 테스트 모드로 진행됩니다.</p>
+      </footer>
+    </div>
+
+    <script>
+      // URL 파라미터 파싱
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const message = urlParams.get("message");
+      const orderId = urlParams.get("orderId");
+      
+      // 결제 정보 표시
+      document.getElementById("code").textContent = code || "UNKNOWN_ERROR";
+      document.getElementById("message").textContent = message || "알 수 없는 오류가 발생했습니다.";
+      document.getElementById("orderId").textContent = orderId || "없음";
+      
+      if (message) {
+        document.getElementById("error-message").textContent = message;
+      }
+      
+      // 다시 결제하기 버튼
+      const retryButton = document.getElementById("retry-button");
+      retryButton.addEventListener("click", function() {
+        window.location.href = "/";
+      });
+    </script>
+  </body>
+</html> 
