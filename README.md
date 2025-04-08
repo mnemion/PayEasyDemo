@@ -4,7 +4,7 @@
 
 PayEasyDemo는 Toss Payments API를 활용한 결제 게이트웨이(PG) 연동 데모 애플리케이션입니다. Node.js와 Express 기반으로, 결제 과정을 쉽게 구현하고 테스트할 수 있는 환경을 제공합니다.
 
-![GitHub CI 상태](https://github.com/username/PayEasyDemo/workflows/CI%20Pipeline/badge.svg)
+![GitHub CI 상태](https://github.com/mnemion/PayEasyDemo/workflows/CI%20Pipeline/badge.svg)
 ![개발 상태](https://img.shields.io/badge/개발-완료-brightgreen)
 
 ## ✨ 주요 기능
